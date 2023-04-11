@@ -113,6 +113,18 @@ public abstract class CrudService<E, D, R> {
         return this.jpaRepository.findAll(this.createSpec(spec), pageable);
     }
 
+    @SneakyThrows
+    public List<E> findAll(D keyword) {
+        if (AccessableInterface.class.isAssignableFrom(this.getClass())) {
+            AccessableInterface accessable = (AccessableInterface) this;
+            if (!accessable.canList()) {
+                throw new AlurKerjaException(400, "Can't get list data");
+            }
+        }
+        Specification spec =  this.instantiateSpecification(keyword);
+        return this.jpaRepository.findAll(this.createSpec(spec));
+    }
+
     public Specification createSpec (Specification spec ) {
         if(OwnershipInterface.class.isAssignableFrom(this.getClass())) {
             OwnershipInterface  ownership = (OwnershipInterface) this;
